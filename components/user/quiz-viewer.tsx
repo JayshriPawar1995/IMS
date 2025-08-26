@@ -13,6 +13,7 @@ import { database, type Quiz, type QuizAttempt } from "@/lib/database"
 import { useAuth } from "@/contexts/auth-context"
 import { useToast } from "@/hooks/use-toast"
 
+
 interface QuizViewerProps {
   quiz: Quiz
   onComplete: () => void
