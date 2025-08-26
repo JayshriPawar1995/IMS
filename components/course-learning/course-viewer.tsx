@@ -324,7 +324,7 @@ export function CourseViewer({ courseId }: { courseId: string }) {
                             <Clock className="h-3 w-3" />
                             {lesson.duration_minutes} min
                             {lesson.completed && (
-                              <Badge variant="outline" className="ml-2">
+                              <Badge variant="outline" className="ml-2"> 
                                 <CheckCircle className="h-3 w-3 mr-1" />
                                 Completed
                               </Badge>
@@ -354,7 +354,9 @@ export function CourseViewer({ courseId }: { courseId: string }) {
                           </p>
                         </div>
                         <Button size="sm" onClick={() => startQuiz(module.quiz!)} disabled={!module.quiz.can_attempt}>
-                          {module.quiz.attempts_count > 0 ? "Retake" : "Start"} Quiz
+                          {(module.quiz.attempts_count ?? 0) > 0 ? "Retake" : "Start"} Quiz
+
+                          {/* {module.quiz.attempts_count > 0 ? "Retake" : "Start"} Quiz */}
                         </Button>
                       </div>
                     </div>
@@ -385,7 +387,7 @@ export function CourseViewer({ courseId }: { courseId: string }) {
                     </div>
                   </div>
 
-                  {course.finalQuiz.attempts_count > 0 && (
+                  {(course.finalQuiz.attempts_count ?? 0) > 0 && (
                     <div className="p-4 bg-muted rounded-lg">
                       <p className="text-sm font-medium mb-2">Previous Attempts</p>
                       <p className="text-sm text-muted-foreground">
@@ -400,7 +402,7 @@ export function CourseViewer({ courseId }: { courseId: string }) {
                     disabled={!course.finalQuiz.can_attempt}
                     className="w-full"
                   >
-                    {course.finalQuiz.attempts_count > 0 ? "Retake" : "Start"} Final Assessment
+                    {(course.finalQuiz.attempts_count ?? 0) > 0 ? "Retake" : "Start"} Final Assessment
                   </Button>
                 </div>
               </CardContent>
