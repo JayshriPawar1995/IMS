@@ -53,7 +53,9 @@ export interface Quiz {
   isFinalQuiz: boolean
   questions: QuizQuestion[]
   status: "active" | "draft"
-  createdAt: string
+  createdAt: string,
+  
+  
 }
 
 export interface QuizQuestion {

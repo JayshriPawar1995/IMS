@@ -11,26 +11,43 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Clock, ArrowLeft, ArrowRight, CheckCircle, XCircle, Trophy, AlertTriangle } from "lucide-react"
 import { apiClient } from "@/lib/api-client"
 
-interface Quiz {
-  id: number
+// interface Quiz {
+//   id: number
+//   title: string
+//   description: string
+//   time_limit_minutes: number
+//   passing_score: number
+//   max_attempts: number
+//   is_final_quiz: boolean
+//   questions?: QuizQuestion[]
+//   attempts_count?: number
+//   best_score?: number
+//   can_attempt?: boolean
+// }
+export interface Quiz {
+  id: string
+  courseId: string
+   lessonId?: string
   title: string
   description: string
-  time_limit_minutes: number
-  passing_score: number
-  max_attempts: number
-  is_final_quiz: boolean
-  questions?: QuizQuestion[]
-  attempts_count?: number
-  best_score?: number
-  can_attempt?: boolean
+  timeLimit: number
+  passingScore: number
+  isFinalQuiz: boolean
+  questions: QuizQuestion[]
+  status: "active" | "draft"
+  createdAt: string
+  attemptscount: number
+  maxAttempts: number
+   can_attempt?: boolean
 }
 
-interface QuizQuestion {
-  id: number
+export interface QuizQuestion {
+  id: string
   question: string
   options: string[]
+  correctAnswer: number
+  explanation?: string
   points: number
-  order_index: number
 }
 
 interface QuizInterfaceProps {
@@ -43,7 +60,8 @@ export function QuizInterface({ quiz, onComplete, onBack }: QuizInterfaceProps) 
   const [questions, setQuestions] = useState<QuizQuestion[]>([])
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
   const [answers, setAnswers] = useState<Record<number, number>>({})
-  const [timeLeft, setTimeLeft] = useState(quiz.time_limit_minutes * 60)
+ 
+  const [timeLeft, setTimeLeft] = useState(quiz.timeLimit * 60)
   const [quizStarted, setQuizStarted] = useState(false)
   const [quizCompleted, setQuizCompleted] = useState(false)
   const [quizResult, setQuizResult] = useState<any>(null)
@@ -84,7 +102,7 @@ export function QuizInterface({ quiz, onComplete, onBack }: QuizInterfaceProps) 
   const startQuiz = () => {
     setQuizStarted(true)
     setStartTime(new Date())
-    setTimeLeft(quiz.time_limit_minutes * 60)
+    setTimeLeft(quiz.timeLimit * 60)
   }
 
   const selectAnswer = (questionId: number, answerIndex: number) => {
@@ -149,7 +167,7 @@ export function QuizInterface({ quiz, onComplete, onBack }: QuizInterfaceProps) 
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              {quiz.is_final_quiz && <Trophy className="h-5 w-5 text-yellow-500" />}
+              {quiz.isFinalQuiz && <Trophy className="h-5 w-5 text-yellow-500" />}
               {quiz.title}
             </CardTitle>
             <CardDescription>{quiz.description}</CardDescription>
@@ -159,23 +177,23 @@ export function QuizInterface({ quiz, onComplete, onBack }: QuizInterfaceProps) 
             <div className="grid grid-cols-2 gap-4">
               <div className="text-center p-4 border rounded-lg">
                 <Clock className="h-8 w-8 mx-auto mb-2 text-blue-500" />
-                <p className="font-semibold">{quiz.time_limit_minutes} Minutes</p>
+                <p className="font-semibold">{quiz.timeLimit} Minutes</p>
                 <p className="text-sm text-muted-foreground">Time Limit</p>
               </div>
 
               <div className="text-center p-4 border rounded-lg">
                 <CheckCircle className="h-8 w-8 mx-auto mb-2 text-green-500" />
-                <p className="font-semibold">{quiz.passing_score}%</p>
+                <p className="font-semibold">{quiz.passingScore}%</p>
                 <p className="text-sm text-muted-foreground">Passing Score</p>
               </div>
             </div>
 
-            {quiz.attempts_count !== undefined && quiz.attempts_count > 0 && (
+            {quiz.attemptscount !== undefined && quiz.attemptscount > 0 && (
               <Alert>
                 <AlertTriangle className="h-4 w-4" />
                 <AlertDescription>
-                  You have attempted this quiz {quiz.attempts_count} out of {quiz.max_attempts} times.
-                  {quiz.best_score !== undefined && ` Your best score: ${quiz.best_score}%`}
+                  You have attempted this quiz {quiz.attemptscount} out of {quiz.maxAttempts} times.
+                  {quiz.passingScore !== undefined && ` Your best score: ${quiz.passingScore}%`}
                 </AlertDescription>
               </Alert>
             )}
@@ -187,7 +205,7 @@ export function QuizInterface({ quiz, onComplete, onBack }: QuizInterfaceProps) 
                 <li>• You can navigate between questions using the navigation buttons</li>
                 <li>• Make sure to answer all questions before submitting</li>
                 <li>• The quiz will auto-submit when time runs out</li>
-                {quiz.is_final_quiz && <li>• Passing this quiz will earn you a certificate</li>}
+                {quiz.isFinalQuiz && <li>• Passing this quiz will earn you a certificate</li>}
               </ul>
             </div>
 
@@ -231,7 +249,7 @@ export function QuizInterface({ quiz, onComplete, onBack }: QuizInterfaceProps) 
             <div className="grid grid-cols-2 gap-4">
               <div className="text-center p-4 border rounded-lg">
                 <p className="font-semibold">Required</p>
-                <p className="text-2xl font-bold text-muted-foreground">{quiz.passing_score}%</p>
+                <p className="text-2xl font-bold text-muted-foreground">{quiz.passingScore}%</p>
               </div>
               <div className="text-center p-4 border rounded-lg">
                 <p className="font-semibold">Your Score</p>
@@ -241,7 +259,7 @@ export function QuizInterface({ quiz, onComplete, onBack }: QuizInterfaceProps) 
               </div>
             </div>
 
-            {quiz.is_final_quiz && quizResult.passed && (
+            {quiz.isFinalQuiz && quizResult.passed && (
               <Alert>
                 <Trophy className="h-4 w-4" />
                 <AlertDescription>
@@ -302,8 +320,13 @@ export function QuizInterface({ quiz, onComplete, onBack }: QuizInterfaceProps) 
             <p className="text-lg">{currentQuestion.question}</p>
 
             <RadioGroup
-              value={answers[currentQuestion.id]?.toString()}
-              onValueChange={(value) => selectAnswer(currentQuestion.id, Number.parseInt(value))}
+              
+           value={answers[Number(currentQuestion.id)]?.toString()}
+
+             onValueChange={(value: string) => selectAnswer(Number(currentQuestion.id), parseInt(value, 10))}
+
+
+              
             >
               {currentQuestion.options.map((option, index) => (
                 <div key={index} className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-muted/50">

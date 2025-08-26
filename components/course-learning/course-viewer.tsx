@@ -42,17 +42,44 @@ interface Lesson {
   time_spent?: number
 }
 
-interface Quiz {
-  id: number
-  title: string
-  description: string
-  time_limit_minutes: number
-  passing_score: number
-  max_attempts: number
-  is_final_quiz: boolean
-  attempts_count?: number
-  best_score?: number
-  can_attempt?: boolean
+// interface Quiz {
+//   id: number
+//   title: string
+//   description: string
+//   time_limit_minutes: number
+//   passing_score: number
+//   max_attempts: number
+//   is_final_quiz: boolean
+//   attempts_count?: number
+//   best_score?: number
+//   can_attempt?: boolean
+// }
+
+export interface Quiz {
+  id: string,
+  courseId: string,
+  lessonId?: string,
+  title: string,
+  description: string,
+  timeLimit: number,
+  passingScore: number,
+  maxAttempts: number,
+  isFinalQuiz: boolean,
+  questions: QuizQuestion[]
+  status: "active" | "draft"
+  createdAt: string,
+  attemptscount: number,
+  canAttempt: boolean,
+  bestScore: number
+  
+}
+export interface QuizQuestion {
+  id: string
+  question: string
+  options: string[]
+  correctAnswer: number
+  explanation?: string
+  points: number
 }
 
 export function CourseViewer({ courseId }: { courseId: string }) {
@@ -350,11 +377,11 @@ export function CourseViewer({ courseId }: { courseId: string }) {
                         <div>
                           <h4 className="font-medium">Module Quiz: {module.quiz.title}</h4>
                           <p className="text-sm text-muted-foreground">
-                            {module.quiz.time_limit_minutes} minutes • Passing score: {module.quiz.passing_score}%
+                            {module.quiz.timeLimit} minutes • Passing score: {module.quiz.passingScore}%
                           </p>
                         </div>
-                        <Button size="sm" onClick={() => startQuiz(module.quiz!)} disabled={!module.quiz.can_attempt}>
-                          {(module.quiz.attempts_count ?? 0) > 0 ? "Retake" : "Start"} Quiz
+                        <Button size="sm" onClick={() => startQuiz(module.quiz!)} disabled={!module.quiz.canAttempt}>
+                          {(module.quiz.attemptscount ?? 0) > 0 ? "Retake" : "Start"} Quiz
 
                           {/* {module.quiz.attempts_count > 0 ? "Retake" : "Start"} Quiz */}
                         </Button>
@@ -379,30 +406,30 @@ export function CourseViewer({ courseId }: { courseId: string }) {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <p className="text-sm font-medium">Time Limit</p>
-                      <p className="text-2xl font-bold">{course.finalQuiz.time_limit_minutes} min</p>
+                      <p className="text-2xl font-bold">{course.finalQuiz.timeLimit} min</p>
                     </div>
                     <div>
                       <p className="text-sm font-medium">Passing Score</p>
-                      <p className="text-2xl font-bold">{course.finalQuiz.passing_score}%</p>
+                      <p className="text-2xl font-bold">{course.finalQuiz.passingScore}%</p>
                     </div>
                   </div>
 
-                  {(course.finalQuiz.attempts_count ?? 0) > 0 && (
+                  {(course.finalQuiz.attemptscount ?? 0) > 0 && (
                     <div className="p-4 bg-muted rounded-lg">
                       <p className="text-sm font-medium mb-2">Previous Attempts</p>
                       <p className="text-sm text-muted-foreground">
-                        Attempts: {course.finalQuiz.attempts_count}/{course.finalQuiz.max_attempts}
+                        Attempts: {course.finalQuiz.attemptscount}/{course.finalQuiz.maxAttempts}
                       </p>
-                      <p className="text-sm text-muted-foreground">Best Score: {course.finalQuiz.best_score}%</p>
+                      <p className="text-sm text-muted-foreground">Best Score: {course.finalQuiz.bestScore}%</p>
                     </div>
                   )}
 
                   <Button
                     onClick={() => startQuiz(course.finalQuiz!)}
-                    disabled={!course.finalQuiz.can_attempt}
+                    disabled={!course.finalQuiz.canAttempt}
                     className="w-full"
                   >
-                    {(course.finalQuiz.attempts_count ?? 0) > 0 ? "Retake" : "Start"} Final Assessment
+                    {(course.finalQuiz.attemptscount ?? 0) > 0 ? "Retake" : "Start"} Final Assessment
                   </Button>
                 </div>
               </CardContent>

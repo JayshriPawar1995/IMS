@@ -628,23 +628,47 @@ export interface Lesson {
   status?: string | null;
 }
 
+
 export interface QuizQuestion {
-  id: string | number;
-  question: string;
-  options: string[];
-  correctIndex: number;
+  id: string
+  question: string
+  options: string[]
+  correctAnswer: number
+  explanation?: string
+  points: number
 }
+// export interface Quiz {
+//   id: string | number;
+//   courseId: string | number;
+//   title: string;
+//   description?: string;
+//   timeLimit?: number;
+//   passingScore?: number;
+//   isFinalQuiz?: boolean;
+//   questions: QuizQuestion[];
+//   status: "active" | "draft"
+//   createdAt: string,
+//   attemptscount?: number,
+//   maxAttempts: number
+// }
+
 
 export interface Quiz {
-  id: string | number;
-  courseId: string | number;
-  title: string;
-  description?: string;
-  timeLimit?: number;
-  passingScore?: number;
-  isFinalQuiz?: boolean;
-  questions: QuizQuestion[];
+  id: string
+  courseId: string
+   lessonId?: string
+  title: string
+  description: string
+  timeLimit: number
+  passingScore: number
+  isFinalQuiz: boolean
+  questions: QuizQuestion[]
+  status: "active" | "draft"
+  createdAt: string
+  attemptscount: number
+  maxAttempts: number
 }
+
 
 export interface Enrollment { 
   id: string | number;
