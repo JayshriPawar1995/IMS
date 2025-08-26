@@ -39,11 +39,16 @@ class ApiClient {
 
   private async request<T = unknown>(endpoint: string, options: RequestInit = {}): Promise<ApiResponse<T>> {
     const url = `${BASE_URL}${endpoint}`
-    const headers: HeadersInit = {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-      ...options.headers,
-    }
+    const headers = {
+  "Content-Type": "application/json",
+  Accept: "application/json",
+  ...options.headers,
+} as Record<string, string>;
+
+if (this.token) {
+  headers["Authorization"] = `Bearer ${this.token}`;
+}
+
     if (this.token) headers.Authorization = `Bearer ${this.token}`
 
     try {
